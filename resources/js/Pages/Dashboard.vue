@@ -1,25 +1,39 @@
 <template>
-
     <Head title="Dashboard" />
 
     <div class="min-h-screen bg-[#0f172a] p-4 sm:p-8 overflow-hidden relative font-sans">
 
-        <div class="absolute top-0 left-10 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none">
-        </div>
-        <div class="absolute bottom-10 right-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none">
-        </div>
+        <div class="absolute top-0 left-10 w-96 h-96 bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute bottom-10 right-10 w-96 h-96 bg-cyan-600/20 rounded-full blur-[120px] pointer-events-none"></div>
 
         <div class="max-w-7xl mx-auto relative z-10">
 
-            <header class="mb-8 flex justify-between items-center">
+            <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 class="text-3xl font-bold text-white tracking-tight">Hola, Joel</h1>
                     <p class="text-gray-400 mt-1">Aquí tienes el resumen de tu jornada.</p>
                 </div>
-                <button
-                    class="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-lg shadow-indigo-500/30">
-                    + Nuevo Evento
-                </button>
+                
+                <div class="flex items-center gap-3">
+                    <button class="bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-300 border border-indigo-500/30 px-5 py-2.5 rounded-xl font-medium transition-colors">
+                        + Nuevo Evento
+                    </button>
+
+                    <Link href="/calendario" 
+                          @click="isNavigating = true"
+                          class="group relative flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-white px-6 py-2.5 rounded-xl font-bold transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(16,185,129,0.4)] active:scale-95">
+                        
+                        <svg v-if="!isNavigating" class="w-5 h-5 transition-transform group-hover:rotate-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+
+                        <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+
+                        <span>{{ isNavigating ? 'Abriendo...' : 'Ir al Calendario' }}</span>
+                    </Link>
+                </div>
             </header>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -34,8 +48,7 @@
                         </div>
                     </div>
 
-                    <div
-                        class="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-xl border border-indigo-500/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
+                    <div class="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 backdrop-blur-xl border border-indigo-500/30 rounded-3xl p-6 shadow-2xl relative overflow-hidden">
                         <div class="absolute top-0 right-0 p-4 opacity-20">
                             <svg class="w-24 h-24 text-indigo-300" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
@@ -53,38 +66,31 @@
 
                     <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
                         <h2 class="text-xl font-semibold text-white mb-4">Tareas Pendientes</h2>
-                        <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6">
-                            <h2 class="text-xl font-semibold text-white mb-4">Tareas Pendientes</h2>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div v-for="tarea in tareas" :key="tarea.id"
+                                class="group flex flex-col justify-between p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10">
 
-                                <div v-for="tarea in tareas" :key="tarea.id"
-                                    class="group flex flex-col justify-between p-5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/10">
+                                <div>
+                                    <h3 class="text-gray-200 font-medium leading-tight mb-1 group-hover:text-indigo-300 transition-colors">
+                                        {{ tarea.titulo }}
+                                    </h3>
+                                    <p class="text-xs text-gray-500">{{ tarea.proyecto }}</p>
+                                </div>
 
-                                    <div>
-                                        <h3
-                                            class="text-gray-200 font-medium leading-tight mb-1 group-hover:text-indigo-300 transition-colors">
-                                            {{ tarea.titulo }}
-                                        </h3>
-                                        <p class="text-xs text-gray-500">{{ tarea.proyecto }}</p>
+                                <div class="mt-6 flex items-center justify-between">
+                                    <span class="text-xs font-semibold px-2.5 py-1 rounded-full border"
+                                        :class="tarea.prioridad === 'Alta' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'">
+                                        {{ tarea.prioridad }}
+                                    </span>
+
+                                    <div class="w-6 h-6 rounded-full border-2 border-gray-500 group-hover:border-indigo-400 group-hover:bg-indigo-500/20 transition-all flex items-center justify-center">
+                                        <svg class="w-3.5 h-3.5 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
                                     </div>
-
-                                    <div class="mt-6 flex items-center justify-between">
-                                        <span class="text-xs font-semibold px-2.5 py-1 rounded-full border"
-                                            :class="tarea.prioridad === 'Alta' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'">
-                                            {{ tarea.prioridad }}
-                                        </span>
-
-                                        <div
-                                            class="w-6 h-6 rounded-full border-2 border-gray-500 group-hover:border-indigo-400 group-hover:bg-indigo-500/20 transition-all flex items-center justify-center">
-                                            <svg class="w-3.5 h-3.5 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                    d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-
                                 </div>
                             </div>
                         </div>
@@ -96,13 +102,14 @@
                     <div class="bg-white/5 backdrop-blur-md border border-white/10 rounded-3xl p-6 h-full">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-semibold text-white">Próximos Eventos</h2>
-                            <button class="text-indigo-400 text-sm hover:text-indigo-300">Ver calendario</button>
+                            <Link href="/calendario" class="text-indigo-400 text-sm hover:text-indigo-300 transition-colors">
+                                Ver todo
+                            </Link>
                         </div>
 
                         <div class="relative border-l border-white/10 ml-3 space-y-8 pb-4">
                             <div v-for="evento in eventos" :key="evento.id" class="relative pl-6">
-                                <div
-                                    class="absolute -left-1.5 top-1.5 w-3 h-3 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]">
+                                <div class="absolute -left-1.5 top-1.5 w-3 h-3 bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.8)]">
                                 </div>
 
                                 <p class="text-sm text-indigo-300 font-medium mb-1">{{ evento.hora }}</p>
@@ -127,11 +134,13 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'; // IMPORTANTE: Importamos ref para el estado del botón
 import { Head, Link } from '@inertiajs/vue3';
 
-// En el futuro, estos datos vendrán como props desde el DashboardController de Laravel.
-// Por ahora usamos datos simulados para maquetar la interfaz.
+// Estado para controlar la animación del botón de calendario
+const isNavigating = ref(false);
 
+// Datos simulados (luego vendrán de Laravel)
 const stats = [
     { label: 'Eventos Hoy', value: '3' },
     { label: 'Tareas Pendientes', value: '5' },
