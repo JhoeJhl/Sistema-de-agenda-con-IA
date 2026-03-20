@@ -8,7 +8,7 @@
 
 ---
 
-## 📋 Tabla de Contenidos
+## Tabla de Contenidos
 
 - [Descripción del Proyecto](#descripción-del-proyecto)
 - [Arquitectura](#arquitectura)
@@ -23,7 +23,7 @@
 
 ---
 
-## 📌 Descripción del Proyecto
+## Descripción del Proyecto
 
 **Agenda IA** es una aplicación web desarrollada sobre el framework Laravel que integra capacidades de inteligencia artificial para optimizar la gestión de citas, tareas y eventos. El sistema permite a los usuarios organizar su tiempo de manera eficiente mediante recomendaciones automatizadas basadas en patrones de comportamiento y análisis predictivo.
 
@@ -39,6 +39,6 @@
 
 ---
 
-## 🏗️ Arquitectura
+## Arquitectura
 
-El sistema sigue una arquitectura MVC (Modelo-Vista-Controlador) característica de Laravel, con una capa adicional de servicios para la integración con modelos de inteligencia artificial.
+El sistema sigue una arquitectura MVC (Modelo-Vista-Controlador) característica de Laravel y tambien una arquitectura MVVM caracteriaca de Vue.js, con una capa adicional de servicios para la integración con modelos de inteligencia artificial.
