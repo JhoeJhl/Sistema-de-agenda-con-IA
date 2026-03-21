@@ -7,7 +7,11 @@
         </div>
 
         <div class="w-full mx-auto relative z-10">
+            <div class="mb-8">
+                <Navbar />
+            </div>
             <header class="mb-8 flex justify-center items-center">
+
                 <h1
                     class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
                     Tu Calendario IA
@@ -55,14 +59,17 @@
 </template>
 
 <script setup>
+
+// Librerias
 import { ref, watch } from 'vue';
-import { Head, router, useForm } from '@inertiajs/vue3';
+import { Head, router, useForm, Link } from '@inertiajs/vue3';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 
-// 👇 Importamos los nuevos componentes 👇
+//Componentes
+import Navbar from '@/Components/Navbar.vue';
 import EventPanel from '@/Components/EventPanel.vue';
 import DeleteModal from '@/Components/DeleteModal.vue';
 

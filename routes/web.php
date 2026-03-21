@@ -2,21 +2,14 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EventoController;
-use Illuminate\Foundation\Application;
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Evento;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+Route::get('/', [HomeController::class, '__invoke']);
 
 // Agrupamos TODAS las rutas protegidas aquí
 Route::middleware(['auth', 'verified'])->group(function () {
