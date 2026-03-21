@@ -18,8 +18,7 @@
 - [Configuración](#configuración)
 - [Uso](#uso)
 - [Estructura del Proyecto](#estructura-del-proyecto)
-- [Contribución](#contribución)
-- [Licencia](#licencia)
+
 
 ---
 
