@@ -26,12 +26,10 @@ return new class extends Migration
             $table->timestamps();
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('eventos');
+
+        //Aqui agregar logica para poder recuperar todos los datos guardados y no perder nada 
     }
 };

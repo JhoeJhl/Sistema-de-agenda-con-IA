@@ -19,7 +19,7 @@
                 </h1>
 
                 <p class="text-xl text-gray-400 max-w-2xl mt-3">
-                    Agenda IA es el primer sistema de organización inteligente que aprende tus ritmos, predice tus huecos y bloquea tiempo de enfoque automáticamente para que tú solo tengas que producir.
+                    Agenda IA es un sistema de organización inteligente que aprende tus ritmos, predice tus huecos y bloquea tiempo de enfoque automáticamente para que tú solo tengas que producir.
                 </p>
 
                 <div class="flex items-center gap-4 mt-6">

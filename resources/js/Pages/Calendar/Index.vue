@@ -75,7 +75,7 @@ import DeleteModal from '@/Components/DeleteModal.vue';
 
 const props = defineProps({ eventos: { type: Array, default: () => [] } });
 
-// -- REFS GLOBALES --
+// REFS GLOBALES
 const comandoIA = ref('');
 const estaProcesandoIA = ref(false);
 const isPanelOpen = ref(false);
@@ -93,7 +93,7 @@ const form = useForm({
     titulo: '', descripcion: '', fecha_inicio: '', fecha_fin: '', color: '#6366f1', es_ia_generado: false
 });
 
-const procesarComandoIA = () => { /* tu código de IA */ };
+const procesarComandoIA = () => { };
 
 const syncFechasAlFormulario = (startStr, endStr) => {
     if (startStr.includes('T')) {
@@ -211,11 +211,9 @@ const cerrarPanel = () => {
             realEv.setProp('borderColor', evOriginal.borderColor);
         }
     }
-
     isPanelOpen.value = false;
     form.reset(); form.clearErrors();
     eventoIdEnEdicion.value = null;
-
     if (tempEventId.value && calendarRef.value) {
         const tempEv = calendarRef.value.getApi().getEventById(tempEventId.value);
         if (tempEv) tempEv.remove();
@@ -252,7 +250,6 @@ const confirmarEliminacion = () => {
 </script>
 
 <style>
-/* Solo mantenemos los estilos del calendario aquí. Las animaciones se fueron a los componentes. */
 :root {
     --fc-page-bg-color: transparent;
     --fc-neutral-bg-color: rgba(255, 255, 255, 0.02);
@@ -260,22 +257,18 @@ const confirmarEliminacion = () => {
     --fc-border-color: rgba(255, 255, 255, 0.1);
     --fc-today-bg-color: rgba(99, 102, 241, 0.15);
 }
-
 .fc {
     color: #f1f5f9;
     font-family: inherit;
 }
-
 .fc-toolbar-chunk {
     display: flex !important;
     align-items: center;
     gap: 0.5rem;
 }
-
 .fc-toolbar-chunk .fc-button-group {
     display: flex !important;
 }
-
 .fc .fc-button {
     background-color: rgba(255, 255, 255, 0.05) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -288,23 +281,18 @@ const confirmarEliminacion = () => {
     transition: all 0.3s ease;
     box-shadow: none !important;
 }
-
 .fc .fc-button:hover {
     background-color: rgba(99, 102, 241, 0.3) !important;
     border-color: rgba(99, 102, 241, 0.5) !important;
 }
-
-.fc .fc-button-active,
-.fc .fc-button:active {
+.fc .fc-button-active, .fc .fc-button:active {
     background-color: #6366f1 !important;
     border-color: #6366f1 !important;
     color: white !important;
     box-shadow: 0 0 12px rgba(99, 102, 241, 0.6) !important;
 }
 
-.fc-theme-standard th,
-.fc-theme-standard td,
-.fc-theme-standard .fc-scrollgrid {
+.fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard .fc-scrollgrid {
     border: 1px solid var(--fc-border-color) !important;
 }
 
@@ -313,8 +301,7 @@ const confirmarEliminacion = () => {
     color: inherit;
 }
 
-.fc-timegrid-slot-label-cushion,
-.fc-col-header-cell-cushion {
+.fc-timegrid-slot-label-cushion, .fc-col-header-cell-cushion {
     color: #94a3b8;
     font-weight: 500;
 }
