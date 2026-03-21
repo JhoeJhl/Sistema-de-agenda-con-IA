@@ -1,19 +1,26 @@
 <template>
+
     <Head title="Calendario" />
 
     <div class="min-h-screen bg-[#0f172a] p-4 sm:p-8 overflow-x-hidden relative font-sans text-white">
-        <div class="absolute top-20 left-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+        <div class="absolute top-20 left-20 w-96 h-96 bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none">
+        </div>
 
         <div class="w-full mx-auto relative z-10">
             <header class="mb-8 flex justify-center items-center">
-                <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
+                <h1
+                    class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400">
                     Tu Calendario IA
                 </h1>
             </header>
 
-            <div class="mb-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl relative overflow-hidden group">
-                <div class="absolute -inset-px bg-gradient-to-r from-indigo-500/50 to-purple-500/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm pointer-events-none"></div>
-                <form @submit.prevent="procesarComandoIA" class="relative z-10 flex flex-col sm:flex-row items-center gap-3">
+            <div
+                class="mb-8 bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-3 shadow-2xl relative overflow-hidden group">
+                <div
+                    class="absolute -inset-px bg-gradient-to-r from-indigo-500/50 to-purple-500/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-sm pointer-events-none">
+                </div>
+                <form @submit.prevent="procesarComandoIA"
+                    class="relative z-10 flex flex-col sm:flex-row items-center gap-3">
                     <div class="flex-1 w-full relative">
                         <span class="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-400">✨</span>
                         <input v-model="comandoIA" type="text" :disabled="estaProcesandoIA"
@@ -28,7 +35,7 @@
             </div>
 
             <div class="flex flex-col lg:flex-row gap-6 relative items-stretch min-h-[calc(100vh-16rem)]">
-                
+
                 <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl transition-all duration-500 ease-in-out flex flex-col"
                     :class="isPanelOpen ? 'lg:w-2/3' : 'w-full'">
                     <div class="calendar-container flex-1 h-full min-h-[600px]">
@@ -36,27 +43,14 @@
                     </div>
                 </div>
 
-                <EventPanel 
-                    :show="isPanelOpen" 
-                    :is-editing="!!eventoIdEnEdicion" 
-                    :form="form" 
-                    :colores-disponibles="coloresDisponibles"
-                    v-model:fecha-dia="fecha_dia"
-                    v-model:hora-inicio="hora_inicio"
-                    v-model:hora-fin="hora_fin"
-                    @close="cerrarPanel"
-                    @save="guardarEvento"
-                    @delete="isDeleteModalOpen = true"
-                    @sumar-tiempo="sumarTiempo"
-                />
+                <EventPanel :show="isPanelOpen" :is-editing="!!eventoIdEnEdicion" :form="form"
+                    :colores-disponibles="coloresDisponibles" v-model:fecha-dia="fecha_dia"
+                    v-model:hora-inicio="hora_inicio" v-model:hora-fin="hora_fin" @close="cerrarPanel"
+                    @save="guardarEvento" @delete="isDeleteModalOpen = true" @sumar-tiempo="sumarTiempo" />
             </div>
         </div>
 
-        <DeleteModal 
-            :show="isDeleteModalOpen" 
-            @close="isDeleteModalOpen = false" 
-            @confirm="confirmarEliminacion" 
-        />
+        <DeleteModal :show="isDeleteModalOpen" @close="isDeleteModalOpen = false" @confirm="confirmarEliminacion" />
     </div>
 </template>
 
@@ -80,8 +74,8 @@ const estaProcesandoIA = ref(false);
 const isPanelOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 const calendarRef = ref(null);
-const tempEventId = ref(null); 
-const eventoIdEnEdicion = ref(null); 
+const tempEventId = ref(null);
+const eventoIdEnEdicion = ref(null);
 
 const fecha_dia = ref('');
 const hora_inicio = ref('');
@@ -89,7 +83,7 @@ const hora_fin = ref('');
 const coloresDisponibles = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
 
 const form = useForm({
-    titulo: '',descripcion: '', fecha_inicio: '', fecha_fin: '', color: '#6366f1', es_ia_generado: false
+    titulo: '', descripcion: '', fecha_inicio: '', fecha_fin: '', color: '#6366f1', es_ia_generado: false
 });
 
 const procesarComandoIA = () => { /* tu código de IA */ };
@@ -116,14 +110,14 @@ const calendarOptions = ref({
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
     headerToolbar: { left: 'prev,next today', center: '', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-    locale: 'es', slotMinTime: '06:00:00', allDaySlot: true, editable: true, selectable: true, 
+    locale: 'es', slotMinTime: '06:00:00', allDaySlot: true, editable: true, selectable: true,
     selectMirror: false, expandRows: true, height: '100%', unselectAuto: false,
     events: props.eventos,
 
     select: (info) => {
         const api = calendarRef.value.getApi();
-        api.unselect(); 
-        eventoIdEnEdicion.value = null; 
+        api.unselect();
+        eventoIdEnEdicion.value = null;
         form.reset();
 
         if (tempEventId.value) {
@@ -134,7 +128,7 @@ const calendarOptions = ref({
         tempEventId.value = 'temp-' + Date.now();
         api.addEvent({
             id: tempEventId.value, title: '(Nuevo Evento)', start: info.startStr, end: info.endStr,
-            backgroundColor: form.color, borderColor: form.color, editable: true 
+            backgroundColor: form.color, borderColor: form.color, editable: true
         });
 
         syncFechasAlFormulario(info.startStr, info.endStr);
@@ -148,7 +142,8 @@ const calendarOptions = ref({
         eventoIdEnEdicion.value = ev.id;
         form.titulo = ev.title;
         form.color = ev.backgroundColor;
-        
+        form.descripcion = ev.description || '';
+
         syncFechasAlFormulario(ev.startStr, ev.endStr || ev.startStr);
         if (!isPanelOpen.value) abrirPanel();
     },
@@ -227,10 +222,10 @@ const sumarTiempo = (minutos) => {
     const [h, m] = hora_inicio.value.split(':').map(Number);
     const date = new Date(); date.setHours(h, m + minutos, 0, 0);
     hora_fin.value = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
-    
+
     if (tempEventId.value && calendarRef.value) {
-         const tempEv = calendarRef.value.getApi().getEventById(tempEventId.value);
-         if (tempEv) tempEv.setEnd(`${fecha_dia.value}T${hora_fin.value}:00`);
+        const tempEv = calendarRef.value.getApi().getEventById(tempEventId.value);
+        if (tempEv) tempEv.setEnd(`${fecha_dia.value}T${hora_fin.value}:00`);
     }
 };
 
@@ -251,19 +246,99 @@ const confirmarEliminacion = () => {
 
 <style>
 /* Solo mantenemos los estilos del calendario aquí. Las animaciones se fueron a los componentes. */
-:root { --fc-page-bg-color: transparent; --fc-neutral-bg-color: rgba(255, 255, 255, 0.02); --fc-neutral-text-color: #cbd5e1; --fc-border-color: rgba(255, 255, 255, 0.1); --fc-today-bg-color: rgba(99, 102, 241, 0.15); }
-.fc { color: #f1f5f9; font-family: inherit; }
-.fc-toolbar-chunk { display: flex !important; align-items: center; gap: 0.5rem; }
-.fc-toolbar-chunk .fc-button-group { display: flex !important; }
-.fc .fc-button { background-color: rgba(255, 255, 255, 0.05) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; color: #e2e8f0 !important; padding: 0.4rem 0.8rem !important; border-radius: 0.5rem !important; font-weight: 500; text-transform: capitalize; backdrop-filter: blur(8px); transition: all 0.3s ease; box-shadow: none !important; }
-.fc .fc-button:hover { background-color: rgba(99, 102, 241, 0.3) !important; border-color: rgba(99, 102, 241, 0.5) !important; }
-.fc .fc-button-active, .fc .fc-button:active { background-color: #6366f1 !important; border-color: #6366f1 !important; color: white !important; box-shadow: 0 0 12px rgba(99, 102, 241, 0.6) !important; }
-.fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard .fc-scrollgrid { border: 1px solid var(--fc-border-color) !important; }
-.fc a { text-decoration: none !important; color: inherit; }
-.fc-timegrid-slot-label-cushion, .fc-col-header-cell-cushion { color: #94a3b8; font-weight: 500; }
-.fc-event { border: none !important; border-radius: 6px; padding: 3px 5px; font-size: 0.8rem; font-weight: 500; cursor: pointer; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.fc-event:hover { transform: scale(1.02); box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.4); z-index: 50; }
-.fc-scroller::-webkit-scrollbar { width: 8px; }
-.fc-scroller::-webkit-scrollbar-track { background: transparent; }
-.fc-scroller::-webkit-scrollbar-thumb { background-color: rgba(255, 255, 255, 0.2); border-radius: 10px; }
+:root {
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: rgba(255, 255, 255, 0.02);
+    --fc-neutral-text-color: #cbd5e1;
+    --fc-border-color: rgba(255, 255, 255, 0.1);
+    --fc-today-bg-color: rgba(99, 102, 241, 0.15);
+}
+
+.fc {
+    color: #f1f5f9;
+    font-family: inherit;
+}
+
+.fc-toolbar-chunk {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fc-toolbar-chunk .fc-button-group {
+    display: flex !important;
+}
+
+.fc .fc-button {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 0.5rem !important;
+    font-weight: 500;
+    text-transform: capitalize;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+}
+
+.fc .fc-button:hover {
+    background-color: rgba(99, 102, 241, 0.3) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+.fc .fc-button-active,
+.fc .fc-button:active {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    color: white !important;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.6) !important;
+}
+
+.fc-theme-standard th,
+.fc-theme-standard td,
+.fc-theme-standard .fc-scrollgrid {
+    border: 1px solid var(--fc-border-color) !important;
+}
+
+.fc a {
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.fc-timegrid-slot-label-cushion,
+.fc-col-header-cell-cushion {
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.fc-event {
+    border: none !important;
+    border-radius: 6px;
+    padding: 3px 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fc-event:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+}
+
+.fc-scroller::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+}
 </style>

@@ -13,6 +13,7 @@ class EventoController extends Controller
         // 1. Validamos los datos que llegan de Vue
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
             'es_ia_generado' => 'boolean',
@@ -27,6 +28,7 @@ class EventoController extends Controller
         // 3. Creamos el evento asociado al usuario actual
         $request->user()->eventos()->create([
             'titulo' => $validated['titulo'],
+            'descripcion' => $validated['descripcion'] ?? null,
             'fecha_inicio' => $validated['fecha_inicio'],
             'fecha_fin' => $validated['fecha_fin'],
             'es_ia_generado' => $request->boolean('es_ia_generado', false),

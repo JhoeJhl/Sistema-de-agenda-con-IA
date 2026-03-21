@@ -23,7 +23,7 @@
                         placeholder="Ej. Estudiar, Reunión, Ir al Gimnasio, etc..." required autofocus>
                 </div>
                 <div class="mb-5">
-                    <label class="block text-sm text-gray-400 mb-1">Descripción o detalles (Opcional)</label>
+                    <label class="block text-sm text-gray-400 mb-1">Descripción o detalles</label>
                     <textarea v-model="form.descripcion" rows="3"
                         class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-y"
                         placeholder="Añade notas, enlaces o detalles adicionales aquí..."></textarea>
