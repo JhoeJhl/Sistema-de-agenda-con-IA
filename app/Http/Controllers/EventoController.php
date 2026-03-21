@@ -43,17 +43,25 @@ class EventoController extends Controller
             abort(403, 'No tienes permiso para modificar este evento.');
         }
 
+        // Ahora validamos también el título y el color
         $validated = $request->validate([
+            'titulo' => 'sometimes|required|string|max:255',
+            'descripcion' => 'nullable|string',
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'color' => 'nullable|string|max:7'
         ]);
 
+        // Actualizamos todos los datos del evento
         $evento->update([
+            'titulo' => $validated['titulo'] ?? $evento->titulo,
+            'descripcion' => $validated['descripcion'] ?? $evento->descripcion,
             'fecha_inicio' => $validated['fecha_inicio'],
             'fecha_fin' => $validated['fecha_fin'],
+            'color' => $validated['color'] ?? $evento->color,
         ]);
 
-        return back()->with('success', 'Fechas actualizadas.');
+        return back()->with('success', 'Evento actualizado.');
     }
 
     public function destroy(Evento $evento)
@@ -61,9 +69,9 @@ class EventoController extends Controller
         if ($evento->user_id !== Auth::id()) {
             abort(403);
         }
-        
+
         $evento->delete();
-        
+
         return back()->with('success', 'Evento eliminado.');
     }
 }

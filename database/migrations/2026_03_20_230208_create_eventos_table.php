@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
-            $table->string('titulo');
+            $table->string('titulo')->default('Evento sin título');
             $table->text('descripcion')->nullable();
             $table->dateTime('fecha_inicio');
             $table->dateTime('fecha_fin');

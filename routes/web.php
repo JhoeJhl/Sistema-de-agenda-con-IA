@@ -34,7 +34,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return [
                 'id' => (string) $evento->id,
                 'title' => $evento->titulo,
-                // CORREGIDO: Barra invertida (\) antes de la T
                 'start' => Carbon::parse($evento->fecha_inicio)->format('Y-m-d\TH:i:s'),
                 'end' => $evento->fecha_fin ? Carbon::parse($evento->fecha_fin)->format('Y-m-d\TH:i:s') : null,
                 'backgroundColor' => $evento->color ?? '#6366f1',
