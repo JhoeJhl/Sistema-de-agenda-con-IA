@@ -49,18 +49,20 @@
                     </button>
                 </form>
             </div>
-            <div class="flex flex-col lg:flex-row gap-6 relative items-stretch min-h-[75vh]">
 
-                <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl transition-all duration-500 ease-in-out"
+            <div class="flex flex-col lg:flex-row gap-6 relative items-stretch min-h-[calc(100vh-16rem)]">
+
+                <div class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl transition-all duration-500 ease-in-out flex flex-col"
                     :class="isPanelOpen ? 'lg:w-2/3' : 'w-full'">
-                    <div class="calendar-container">
-                        <FullCalendar ref="calendarRef" :options="calendarOptions" />
+                    <div class="calendar-container flex-1 h-full min-h-[600px]">
+                        <FullCalendar ref="calendarRef" :options="calendarOptions" class="h-full" />
                     </div>
                 </div>
 
                 <Transition name="slide-panel">
                     <div v-if="isPanelOpen"
-                        class="lg:w-1/3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl h-full flex flex-col justify-between">
+                        class="lg:w-1/3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-6 shadow-2xl flex flex-col">
+
                         <div class="flex justify-between items-center mb-6">
                             <h3 class="text-xl font-semibold text-white flex items-center gap-2">Nuevo Evento</h3>
                             <button @click="cerrarPanel" class="text-gray-400 hover:text-white transition-colors">
@@ -71,7 +73,8 @@
                             </button>
                         </div>
 
-                        <form @submit.prevent="guardarEvento">
+                        <form @submit.prevent="guardarEvento" class="flex-1 flex flex-col">
+
                             <div class="mb-5">
                                 <label class="block text-sm text-gray-400 mb-1">¿Qué planeas hacer?</label>
                                 <input v-model="form.titulo" type="text"
@@ -118,7 +121,25 @@
                                 </div>
                             </div>
 
-                            <div class="flex justify-end gap-3 mt-8">
+                            <div class="mb-6">
+                                <label class="block text-sm text-gray-400 mb-2">Color del Evento</label>
+                                <div class="flex gap-3">
+                                    <button v-for="color in coloresDisponibles" :key="color" type="button"
+                                        @click="form.color = color"
+                                        class="w-8 h-8 rounded-full transition-transform hover:scale-110 flex items-center justify-center border-2"
+                                        :style="{ backgroundColor: color, borderColor: form.color === color ? 'white' : 'transparent' }">
+                                        <svg v-if="form.color === color" class="w-4 h-4 text-white drop-shadow-md"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex-1"></div>
+
+                            <div class="flex justify-end gap-3 mt-8 pt-4">
                                 <button type="button" @click="cerrarPanel"
                                     class="px-5 py-2.5 rounded-xl text-gray-300 hover:bg-white/5 transition-colors font-medium">
                                     Cancelar
@@ -148,6 +169,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 const props = defineProps({
     eventos: { type: Array, default: () => [] }
 });
+console.log("Eventos desde laravel: ",props.eventos)
 
 // -- REFS IA --
 const comandoIA = ref('');
@@ -155,94 +177,141 @@ const estaProcesandoIA = ref(false);
 
 const procesarComandoIA = () => {
     if (!comandoIA.value.trim() || estaProcesandoIA.value) return;
-
     estaProcesandoIA.value = true;
-
-    router.post('/eventos/ia-parse', {
-        prompt: comandoIA.value
-    }, {
+    router.post('/eventos/ia-parse', { prompt: comandoIA.value }, {
         preserveScroll: true,
         onSuccess: () => {
             comandoIA.value = '';
-            // FullCalendar se actualizará solo gracias al watcher
             alert('✨ ¡Evento agendado exitosamente por la IA!');
         },
         onError: (errors) => {
-            alert('⚠️ Ups, la IA no pudo procesar esa frase. Intenta ser más específico con la fecha y hora.');
+            alert('⚠️ Ups, la IA no pudo procesar esa frase. Intenta ser más específico.');
             console.error(errors);
         },
-        onFinish: () => {
-            estaProcesandoIA.value = false;
-        }
+        onFinish: () => { estaProcesandoIA.value = false; }
     });
 };
 
 // -- REFS CALENDARIO MANUAL --
 const isPanelOpen = ref(false);
 const calendarRef = ref(null);
+const tempEventId = ref(null); // Guarda el ID del evento borrador
 
 const fecha_dia = ref('');
 const hora_inicio = ref('');
 const hora_fin = ref('');
 
+const coloresDisponibles = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444'];
+
 const form = useForm({
     titulo: '',
     fecha_inicio: '',
     fecha_fin: '',
+    color: '#6366f1',
     es_ia_generado: false
 });
+
+// Función para sincronizar fechas del evento al formulario
+const syncFechasAlFormulario = (startStr, endStr) => {
+    // CORRECCIÓN: Usar startStr en lugar de startString
+    if (startStr.includes('T')) {
+        fecha_dia.value = startStr.split('T')[0];
+        hora_inicio.value = startStr.split('T')[1].slice(0, 5);
+        hora_fin.value = (endStr || startStr).split('T')[1].slice(0, 5);
+    } else {
+        fecha_dia.value = startStr;
+        hora_inicio.value = '08:00';
+        hora_fin.value = '09:00';
+    }
+};
 
 const calendarOptions = ref({
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
-    headerToolbar: {
-        left: 'prev,next today',
-        center: '',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-    },
+    headerToolbar: { left: 'prev,next today', center: '', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
     locale: 'es',
     slotMinTime: '06:00:00',
     allDaySlot: true,
     editable: true,
     selectable: true,
-    selectMirror: true,
+    selectMirror: false,
+    expandRows: true,
+    height: '100%',
+    unselectAuto: false,
+
+    // Mapear los eventos de la DB
     events: props.eventos,
 
+    // AL SELECCIONAR UN ESPACIO
     select: (info) => {
-        const startString = info.startStr;
-        const endString = info.endStr;
+        const calendarApi = calendarRef.value.getApi();
+        calendarApi.unselect(); // Quitamos la sombra azul por defecto
 
-        if (startString.includes('T')) {
-            fecha_dia.value = startString.split('T')[0];
-            hora_inicio.value = startString.split('T')[1].slice(0, 5);
-            hora_fin.value = endString.split('T')[1].slice(0, 5);
-        } else {
-            fecha_dia.value = startString;
-            hora_inicio.value = '08:00';
-            hora_fin.value = '09:00';
+        // Borramos el borrador anterior si existe
+        if (tempEventId.value) {
+            const oldTemp = calendarApi.getEventById(tempEventId.value);
+            if (oldTemp) oldTemp.remove();
         }
-        abrirPanel();
+
+        // Creamos un nuevo evento "Borrador" interactivo
+        tempEventId.value = 'temp-' + Date.now();
+        calendarApi.addEvent({
+            id: tempEventId.value,
+            title: form.titulo || '(Nuevo Evento)',
+            start: info.startStr,
+            end: info.endStr,
+            backgroundColor: form.color,
+            borderColor: form.color,
+            editable: true // Permite arrastrar el borrador
+        });
+
+        syncFechasAlFormulario(info.startStr, info.endStr);
+        if (!isPanelOpen.value) abrirPanel();
     },
 
+    // AL ARRASTRAR UN EVENTO (Mover)
     eventDrop: (info) => {
-        router.put(`/eventos/${info.event.id}`, {
-            fecha_inicio: info.event.startStr,
-            fecha_fin: info.event.endStr || info.event.startStr
-        }, { preserveScroll: true, onError: () => info.revert() });
+        if (info.event.id.startsWith('temp-')) {
+            syncFechasAlFormulario(info.event.startStr, info.event.endStr);
+        } else {
+            router.put(`/eventos/${info.event.id}`, {
+                fecha_inicio: info.event.startStr,
+                fecha_fin: info.event.endStr || info.event.startStr
+            }, { preserveScroll: true, onError: () => info.revert() });
+        }
     },
 
+    // AL REDIMENSIONAR UN EVENTO (Estirar)
     eventResize: (info) => {
-        router.put(`/eventos/${info.event.id}`, {
-            fecha_inicio: info.event.startStr,
-            fecha_fin: info.event.endStr
-        }, { preserveScroll: true, onError: () => info.revert() });
+        if (info.event.id.startsWith('temp-')) {
+            syncFechasAlFormulario(info.event.startStr, info.event.endStr);
+        } else {
+            router.put(`/eventos/${info.event.id}`, {
+                fecha_inicio: info.event.startStr,
+                fecha_fin: info.event.endStr
+            }, { preserveScroll: true, onError: () => info.revert() });
+        }
     }
 });
 
+// Reactividad: Actualizar calendario cuando Laravel envía nuevos eventos
 watch(() => props.eventos, (newEvents) => {
     calendarOptions.value.events = newEvents;
-}, { deep: true });
+}, { deep: true });;
 
+// Reactividad: Cambiar título y color del borrador en tiempo real
+watch([() => form.titulo, () => form.color], ([nuevoTitulo, nuevoColor]) => {
+    if (tempEventId.value && calendarRef.value) {
+        const tempEv = calendarRef.value.getApi().getEventById(tempEventId.value);
+        if (tempEv) {
+            tempEv.setProp('title', nuevoTitulo || '(Nuevo Evento)');
+            tempEv.setProp('backgroundColor', nuevoColor);
+            tempEv.setProp('borderColor', nuevoColor);
+        }
+    }
+});
+
+// RESTAURADAS LAS FUNCIONES QUE ESTABAN COMENTADAS
 const abrirPanel = () => {
     isPanelOpen.value = true;
     setTimeout(() => {
@@ -256,8 +325,13 @@ const cerrarPanel = () => {
     isPanelOpen.value = false;
     form.reset();
     form.clearErrors();
-    const calendarApi = calendarOptions.value?.calendar;
-    if (calendarApi) calendarApi.unselect();
+
+    // Eliminamos el evento borrador del calendario al cancelar
+    if (tempEventId.value && calendarRef.value) {
+        const tempEv = calendarRef.value.getApi().getEventById(tempEventId.value);
+        if (tempEv) tempEv.remove();
+        tempEventId.value = null;
+    }
 
     setTimeout(() => {
         if (calendarRef.value) calendarRef.value.getApi().updateSize();
@@ -283,12 +357,16 @@ const guardarEvento = () => {
 
     form.post('/eventos', {
         preserveScroll: true,
-        onSuccess: () => cerrarPanel()
+        onSuccess: () => {
+            cerrarPanel();
+            // Ya no necesitas un alert intrusivo, la UX es más fluida sin él
+        }
     });
 };
 </script>
 
 <style>
+/* ANIMACIÓN DEL PANEL LATERAL */
 .slide-panel-enter-active,
 .slide-panel-leave-active {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -301,43 +379,100 @@ const guardarEvento = () => {
     margin-left: -33.333333%;
 }
 
-.fc-theme-standard td,
-.fc-theme-standard th,
-.fc-theme-standard .fc-scrollgrid {
-    border-color: rgba(255, 255, 255, 0.1);
+/* VARIABLES GLOBALES DE FULLCALENDAR (Modo Oscuro) */
+:root {
+    --fc-page-bg-color: transparent;
+    --fc-neutral-bg-color: rgba(255, 255, 255, 0.02);
+    --fc-neutral-text-color: #cbd5e1;
+    --fc-border-color: rgba(255, 255, 255, 0.1);
+    --fc-today-bg-color: rgba(99, 102, 241, 0.15);
 }
 
-.fc .fc-button-primary {
-    background-color: rgba(99, 102, 241, 0.2);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #e0e7ff;
+.fc {
+    color: #f1f5f9;
+    font-family: inherit;
+}
+
+.fc-toolbar-chunk {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.fc-toolbar-chunk .fc-button-group {
+    display: flex !important;
+}
+
+.fc .fc-button {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 0.5rem !important;
+    font-weight: 500;
     text-transform: capitalize;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+    box-shadow: none !important;
 }
 
-.fc .fc-button-primary:hover {
-    background-color: rgba(99, 102, 241, 0.4);
+.fc .fc-button:hover {
+    background-color: rgba(99, 102, 241, 0.3) !important;
+    border-color: rgba(99, 102, 241, 0.5) !important;
 }
 
-.fc .fc-button-primary:not(:disabled):active,
-.fc .fc-button-primary:not(:disabled).fc-button-active {
-    background-color: #6366f1;
-    border-color: #6366f1;
+.fc .fc-button-active,
+.fc .fc-button:active {
+    background-color: #6366f1 !important;
+    border-color: #6366f1 !important;
+    color: white !important;
+    box-shadow: 0 0 12px rgba(99, 102, 241, 0.6) !important;
+}
+
+.fc-theme-standard th,
+.fc-theme-standard td,
+.fc-theme-standard .fc-scrollgrid {
+    border: 1px solid var(--fc-border-color) !important;
+}
+
+.fc a {
+    text-decoration: none !important;
+    color: inherit;
 }
 
 .fc-timegrid-slot-label-cushion,
 .fc-col-header-cell-cushion {
-    color: #9ca3af;
+    color: #94a3b8;
+    font-weight: 500;
 }
 
 .fc-event {
+    border: none !important;
     border-radius: 6px;
-    padding: 2px 4px;
-    font-size: 0.85rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
+    padding: 3px 5px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .fc-event:hover {
     transform: scale(1.02);
+    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.4);
+    z-index: 50;
+}
+
+.fc-scroller::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fc-scroller::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
 }
 </style>

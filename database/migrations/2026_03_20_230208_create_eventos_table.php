@@ -20,6 +20,7 @@ return new class extends Migration
             $table->dateTime('fecha_inicio');
             $table->dateTime('fecha_fin');
             $table->string('categoria')->default('general');
+            $table->string('color')->default('#6366f1');
             $table->boolean('es_ia_generado')->default(false);
 
             $table->timestamps();

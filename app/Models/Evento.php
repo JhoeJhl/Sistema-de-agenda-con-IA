@@ -13,6 +13,7 @@ class Evento extends Model
         'fecha_inicio',
         'fecha_fin',
         'categoria',
+        'color',
         'es_ia_generado'
     ];
 
@@ -20,4 +21,6 @@ class Evento extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+
 }
