@@ -11,15 +11,42 @@ use Inertia\Inertia;
 
 Route::get('/', [HomeController::class, '__invoke']);
 
-// Agrupamos TODAS las rutas protegidas aquí
 Route::middleware(['auth', 'verified'])->group(function () {
 
     // Dashboard
+
     Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
+        $user = Auth::user();
+        // Extre el primer usuario
+        $nombreAMostrar = explode(' ', $user->name)[0];
+        $userId = $user->id; 
+        $hoyInicio = Carbon::today();
+        $hoyFin = Carbon::today()->endOfDay();
+        $eventosHoy = Evento::where('user_id', $userId)
+            ->whereBetween('fecha_inicio', [$hoyInicio, $hoyFin])
+            ->orderBy('fecha_inicio', 'asc')
+            ->get();
+        $proximosEventos = Evento::where('user_id', $userId)
+            ->where('fecha_inicio', '>=', now())
+            ->orderBy('fecha_inicio', 'asc')
+            ->take(4)
+            ->get();
+        $horasBloqueadas = 0;
+        foreach ($eventosHoy as $evento) {
+            $inicio = Carbon::parse($evento->fecha_inicio);
+            $fin = Carbon::parse($evento->fecha_fin ?? $evento->fecha_inicio);
+            $horasBloqueadas += $inicio->diffInMinutes($fin) / 60;
+        }
+
+        return Inertia::render('Dashboard', [
+            'userName' => $nombreAMostrar,
+            'eventosHoyCount' => $eventosHoy->count(),
+            'horasBloqueadas' => round($horasBloqueadas, 1),
+            'proximosEventos' => $proximosEventos,
+        ]);
     })->name('dashboard');
 
-    // Rutas del calendario (Extrae y formatea)
+    // Calendario
     Route::get('/calendario', function () {
         $eventosDb = Evento::where('user_id', Auth::id())->get();
 
@@ -27,18 +54,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return [
                 'id' => (string) $evento->id,
                 'title' => $evento->titulo,
-                'description' => $evento->descripcion,
                 'start' => Carbon::parse($evento->fecha_inicio)->format('Y-m-d\TH:i:s'),
                 'end' => $evento->fecha_fin ? Carbon::parse($evento->fecha_fin)->format('Y-m-d\TH:i:s') : null,
                 'backgroundColor' => $evento->color ?? '#6366f1',
                 'borderColor' => $evento->color ?? '#6366f1',
+                'description' => $evento->descripcion,
             ];
         });
 
         return Inertia::render('Calendar/Index', ['eventos' => $eventosFormateados]);
     })->name('calendario.index');
 
-    // Guardar, actualizar y eliminar eventos
+    // CRUD eventos
     Route::post('/eventos', [EventoController::class, 'store'])->name('eventos.store');
     Route::put('/eventos/{evento}', [EventoController::class, 'update'])->name('eventos.update');
     Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])->name('eventos.destroy');

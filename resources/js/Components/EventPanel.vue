@@ -24,8 +24,8 @@
                 </div>
                 <div class="mb-5">
                     <label class="block text-sm text-gray-400 mb-1">Descripción o detalles</label>
-                    <textarea v-model="form.descripcion" rows="3"
-                        class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-y"
+                    <textarea ref="descripcionRef" v-model="form.descripcion" @input="ajustarAltura" rows="2"
+                        class="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-none overflow-hidden"
                         placeholder="Añade notas, enlaces o detalles adicionales aquí..."></textarea>
                 </div>
                 <div class="bg-black/20 border border-white/5 rounded-2xl p-4 mb-6">
@@ -110,16 +110,29 @@
 </template>
 
 <script setup>
+import { ref, watch, nextTick } from 'vue';
+const descripcionRef = ref(null);
 const props = defineProps({
     show: Boolean,
     isEditing: Boolean,
     form: Object,
     coloresDisponibles: Array
 });
+const ajustarAltura = () => {
+    const textarea = descripcionRef.value;
+    if (textarea) {
 
+        textarea.style.height = 'auto';
+
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+};
+watch(() => props.form.descripcion, () => {
+    nextTick(() => {
+        ajustarAltura();
+    });
+}, { immediate: true });
 defineEmits(['close', 'save', 'delete', 'sumarTiempo']);
-
-// Enlazamos las fechas directamente con el componente padre usando defineModel (Vue 3.4+)
 const fechaDia = defineModel('fechaDia');
 const horaInicio = defineModel('horaInicio');
 const horaFin = defineModel('horaFin');

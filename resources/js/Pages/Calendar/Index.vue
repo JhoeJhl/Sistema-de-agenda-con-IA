@@ -61,7 +61,7 @@
 <script setup>
 
 // Librerias
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { Head, router, useForm, Link } from '@inertiajs/vue3';
 import FullCalendar from '@fullcalendar/vue3';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -83,7 +83,6 @@ const isDeleteModalOpen = ref(false);
 const calendarRef = ref(null);
 const tempEventId = ref(null);
 const eventoIdEnEdicion = ref(null);
-
 const fecha_dia = ref('');
 const hora_inicio = ref('');
 const hora_fin = ref('');
@@ -177,12 +176,11 @@ const calendarOptions = ref({
     eventClick: (info) => {
         const ev = info.event;
         if (ev.id.startsWith('temp-')) return;
-
+        console.log("Datos que llegaron de Laravel para este evento:", ev.extendedProps);
         eventoIdEnEdicion.value = ev.id;
         form.titulo = ev.title;
         form.color = ev.backgroundColor;
-        form.descripcion = ev.description || '';
-
+        form.descripcion = ev.extendedProps.description || '';
         syncFechasAlFormulario(ev.startStr, ev.endStr || ev.startStr);
         if (!isPanelOpen.value) abrirPanel();
     },
@@ -294,6 +292,7 @@ const confirmarEliminacion = () => {
     color: #f1f5f9;
     font-family: inherit;
 }
+
 .fc-toolbar-title {
     font-size: 1.5rem !important;
     font-weight: 700 !important;
@@ -301,15 +300,18 @@ const confirmarEliminacion = () => {
     text-transform: capitalize;
     letter-spacing: 0.5px;
 }
+
 .fc-toolbar-chunk {
     display: flex !important;
     align-items: center;
     gap: 0.5rem;
 }
+
 .fc-toolbar-chunk .fc-button-group {
     display: flex !important;
     gap: 2px;
 }
+
 .fc .fc-button {
     background-color: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -321,11 +323,14 @@ const confirmarEliminacion = () => {
     transition: all 0.2s ease;
     box-shadow: none !important;
 }
+
 .fc .fc-button:hover {
     background-color: rgba(255, 255, 255, 0.15) !important;
     color: #ffffff !important;
 }
-.fc .fc-button-active, .fc .fc-button:active {
+
+.fc .fc-button-active,
+.fc .fc-button:active {
     background-color: #6366f1 !important;
     border-color: #6366f1 !important;
     color: white !important;
@@ -339,10 +344,10 @@ const confirmarEliminacion = () => {
 }
 
 /* estilo de la cabecera del calendario (hoy) */
-.fc-col-header-cell-cushion { 
-    padding: 12px 4px !important; 
-    color: #94a3b8; 
-    font-weight: 500; 
+.fc-col-header-cell-cushion {
+    padding: 12px 4px !important;
+    color: #94a3b8;
+    font-weight: 500;
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 0.5px;
@@ -350,36 +355,46 @@ const confirmarEliminacion = () => {
     width: 100%;
     text-align: center;
 }
+
 .fc-theme-standard th.fc-col-header-cell.fc-day-today {
     background: linear-gradient(to bottom, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.05)) !important;
     border-bottom: 2px solid #6366f1 !important;
 }
+
 .fc-theme-standard th.fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion {
-    color: #818cf8 !important; 
+    color: #818cf8 !important;
     font-weight: 700 !important;
 }
-.fc-timegrid-slot-label-cushion { 
-    color: #94a3b8 !important; 
-    font-weight: 500; 
-    font-size: 0.75rem; 
+
+.fc-timegrid-slot-label-cushion {
+    color: #94a3b8 !important;
+    font-weight: 500;
+    font-size: 0.75rem;
     padding-right: 10px !important;
     text-transform: uppercase;
 }
+
 .fc-theme-standard .fc-timegrid-slot-label {
     border: none !important;
 }
+
 .fc-timegrid-axis-cushion {
     color: #94a3b8 !important;
     font-size: 0.75rem !important;
     font-weight: 500;
 }
-.fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard .fc-scrollgrid {
+
+.fc-theme-standard th,
+.fc-theme-standard td,
+.fc-theme-standard .fc-scrollgrid {
     border: 1px solid var(--fc-border-color) !important;
 }
+
 .fc-timegrid-slot-minor {
     border-top-style: dashed !important;
     border-top-color: rgba(255, 255, 255, 0.04) !important;
 }
+
 /* indicador de la hora actual */
 .fc-now-indicator-line {
     border-top: 2px solid #ef4444 !important;
@@ -395,6 +410,7 @@ const confirmarEliminacion = () => {
     background-color: #ef4444;
     border-radius: 50%;
 }
+
 /* Tarjetas diseño */
 .fc-timegrid-event {
     border-radius: 8px !important;
@@ -413,6 +429,7 @@ const confirmarEliminacion = () => {
     z-index: 60 !important;
     filter: brightness(1.1);
 }
+
 .fc-event-main {
     padding: 2px !important;
     display: flex;
