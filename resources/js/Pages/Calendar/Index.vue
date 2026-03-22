@@ -116,9 +116,41 @@ const syncFechasAlFormulario = (startStr, endStr) => {
 const calendarOptions = ref({
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
-    headerToolbar: { left: 'prev,next today', center: '', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
-    locale: 'es', slotMinTime: '06:00:00', allDaySlot: true, editable: true, selectable: true,
-    selectMirror: false, expandRows: true, height: '100%', unselectAuto: false,
+
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+    locale: 'es',
+    slotMinTime: '06:00:00',
+    allDaySlot: true,
+    editable: true,
+    selectable: true,
+    selectMirror: false,
+    expandRows: true,
+    height: '100%',
+    unselectAuto: false,
+    nowIndicator: true,
+
+    //Formato texto calendario
+    slotLabelFormat: {
+        hour: 'numeric',
+        minute: '2-digit',
+        omitZeroMinute: true,
+        meridiem: 'short',
+        hour12: true
+    },
+
+    allDayText: 'Todo el día',
+
+    dayHeaderFormat: {
+        weekday: 'short',
+        day: 'numeric',
+        omitCommas: true
+    },
+    buttonText: {
+        today: 'Hoy',
+        month: 'Mes',
+        week: 'Semana',
+        day: 'Día'
+    },
     events: props.eventos,
 
     select: (info) => {
@@ -252,14 +284,22 @@ const confirmarEliminacion = () => {
 <style>
 :root {
     --fc-page-bg-color: transparent;
-    --fc-neutral-bg-color: rgba(255, 255, 255, 0.02);
-    --fc-neutral-text-color: #cbd5e1;
-    --fc-border-color: rgba(255, 255, 255, 0.1);
-    --fc-today-bg-color: rgba(99, 102, 241, 0.15);
+    --fc-neutral-bg-color: rgba(255, 255, 255, 0.03);
+    --fc-neutral-text-color: #94a3b8;
+    --fc-border-color: rgba(255, 255, 255, 0.08);
+    --fc-today-bg-color: rgba(99, 102, 241, 0.05);
 }
+
 .fc {
     color: #f1f5f9;
     font-family: inherit;
+}
+.fc-toolbar-title {
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    color: #ffffff;
+    text-transform: capitalize;
+    letter-spacing: 0.5px;
 }
 .fc-toolbar-chunk {
     display: flex !important;
@@ -268,61 +308,133 @@ const confirmarEliminacion = () => {
 }
 .fc-toolbar-chunk .fc-button-group {
     display: flex !important;
+    gap: 2px;
 }
 .fc .fc-button {
-    background-color: rgba(255, 255, 255, 0.05) !important;
+    background-color: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: #e2e8f0 !important;
-    padding: 0.4rem 0.8rem !important;
+    color: #cbd5e1 !important;
+    padding: 0.5rem 1rem !important;
     border-radius: 0.5rem !important;
     font-weight: 500;
     text-transform: capitalize;
-    backdrop-filter: blur(8px);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     box-shadow: none !important;
 }
 .fc .fc-button:hover {
-    background-color: rgba(99, 102, 241, 0.3) !important;
-    border-color: rgba(99, 102, 241, 0.5) !important;
+    background-color: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
 }
 .fc .fc-button-active, .fc .fc-button:active {
     background-color: #6366f1 !important;
     border-color: #6366f1 !important;
     color: white !important;
-    box-shadow: 0 0 12px rgba(99, 102, 241, 0.6) !important;
+    box-shadow: 0 0 15px rgba(99, 102, 241, 0.5) !important;
 }
 
+.fc-today-button {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    color: #818cf8 !important;
+    border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+/* estilo de la cabecera del calendario (hoy) */
+.fc-col-header-cell-cushion { 
+    padding: 12px 4px !important; 
+    color: #94a3b8; 
+    font-weight: 500; 
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+.fc-theme-standard th.fc-col-header-cell.fc-day-today {
+    background: linear-gradient(to bottom, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.05)) !important;
+    border-bottom: 2px solid #6366f1 !important;
+}
+.fc-theme-standard th.fc-col-header-cell.fc-day-today .fc-col-header-cell-cushion {
+    color: #818cf8 !important; 
+    font-weight: 700 !important;
+}
+.fc-timegrid-slot-label-cushion { 
+    color: #94a3b8 !important; 
+    font-weight: 500; 
+    font-size: 0.75rem; 
+    padding-right: 10px !important;
+    text-transform: uppercase;
+}
+.fc-theme-standard .fc-timegrid-slot-label {
+    border: none !important;
+}
+.fc-timegrid-axis-cushion {
+    color: #94a3b8 !important;
+    font-size: 0.75rem !important;
+    font-weight: 500;
+}
 .fc-theme-standard th, .fc-theme-standard td, .fc-theme-standard .fc-scrollgrid {
     border: 1px solid var(--fc-border-color) !important;
 }
-
-.fc a {
-    text-decoration: none !important;
-    color: inherit;
+.fc-timegrid-slot-minor {
+    border-top-style: dashed !important;
+    border-top-color: rgba(255, 255, 255, 0.04) !important;
 }
-
-.fc-timegrid-slot-label-cushion, .fc-col-header-cell-cushion {
-    color: #94a3b8;
-    font-weight: 500;
-}
-
-.fc-event {
-    border: none !important;
-    border-radius: 6px;
-    padding: 3px 5px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.fc-event:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.4);
+/* indicador de la hora actual */
+.fc-now-indicator-line {
+    border-top: 2px solid #ef4444 !important;
     z-index: 50;
 }
 
+.fc-now-indicator-arrow {
+    border: 5px solid transparent !important;
+    border-top-color: #ef4444 !important;
+    border-right-color: #ef4444 !important;
+    transform: rotate(45deg);
+    margin-top: -4px;
+    background-color: #ef4444;
+    border-radius: 50%;
+}
+/* Tarjetas diseño */
+.fc-timegrid-event {
+    border-radius: 8px !important;
+    border: none !important;
+    border-left: 4px solid rgba(255, 255, 255, 0.7) !important;
+    padding: 3px 5px !important;
+    cursor: pointer;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    overflow: hidden;
+}
+
+.fc-timegrid-event:hover {
+    transform: scale(1.02) translateY(-2px);
+    box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.4);
+    z-index: 60 !important;
+    filter: brightness(1.1);
+}
+.fc-event-main {
+    padding: 2px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.fc-event-time {
+    font-size: 0.7rem !important;
+    opacity: 0.85;
+    font-weight: 600 !important;
+}
+
+.fc-event-title {
+    font-size: 0.85rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* scroll */
 .fc-scroller::-webkit-scrollbar {
     width: 8px;
 }
@@ -332,7 +444,11 @@ const confirmarEliminacion = () => {
 }
 
 .fc-scroller::-webkit-scrollbar-thumb {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
     border-radius: 10px;
+}
+
+.fc-scroller::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.25);
 }
 </style>
