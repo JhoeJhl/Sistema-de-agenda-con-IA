@@ -19,7 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         $user = Auth::user();
         // Extre el primer usuario
         $nombreAMostrar = explode(' ', $user->name)[0];
-        $userId = $user->id; 
+        $userId = $user->id;
         $hoyInicio = Carbon::today();
         $hoyFin = Carbon::today()->endOfDay();
         $eventosHoy = Evento::where('user_id', $userId)
@@ -37,12 +37,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $fin = Carbon::parse($evento->fecha_fin ?? $evento->fecha_inicio);
             $horasBloqueadas += $inicio->diffInMinutes($fin) / 60;
         }
+        $tareasHoy = Tarea::where('user_id', $userId)
+            ->whereDate('fecha_vencimiento', \Carbon\Carbon::today())
+            ->where('estado', 'pendiente') // Solo mostramos las que faltan por hacer
+            ->orderBy('fecha_vencimiento', 'asc')
+            ->get();
 
+        $tareasManana = Tarea::where('user_id', $userId)
+            ->whereDate('fecha_vencimiento', \Carbon\Carbon::tomorrow())
+            ->where('estado', 'pendiente')
+            ->orderBy('fecha_vencimiento', 'asc')
+            ->get();
         return Inertia::render('Dashboard', [
             'userName' => $nombreAMostrar,
             'eventosHoyCount' => $eventosHoy->count(),
             'horasBloqueadas' => round($horasBloqueadas, 1),
             'proximosEventos' => $proximosEventos,
+            'tareasHoy' => $tareasHoy,
+            'tareasManana' => $tareasManana,
         ]);
     })->name('dashboard');
 
