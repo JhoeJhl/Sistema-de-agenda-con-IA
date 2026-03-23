@@ -1,11 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EventoController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Evento;
+use App\Models\Tarea;
 use Illuminate\Support\Carbon;
 use Inertia\Inertia;
 
@@ -82,6 +84,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/eventos/{evento}', [EventoController::class, 'update'])->name('eventos.update');
     Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])->name('eventos.destroy');
 
+    // Tareas 
+
+    Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
     // Profile breeze
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
