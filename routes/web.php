@@ -16,9 +16,7 @@ Route::get('/', [HomeController::class, '__invoke']);
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // ==========================================
-    // DASHBOARD
-    // ==========================================
+    // Dashboard
     Route::get('/dashboard', function () {
         $user = Auth::user();
         $nombreAMostrar = explode(' ', $user->name)[0];
@@ -69,10 +67,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ]);
     })->name('dashboard');
 
-    // ==========================================
-    // TAREAS (DASHBOARD)
-    // ==========================================
-    Route::post('/tareas', function (Request $request) { // <- Corregido (Request $request)
+    // Tareas
+    Route::post('/tareas', function (Request $request) { 
         $validated = $request->validate([
             'titulo' => 'required|string|max:255',
             'categoria' => 'nullable|string|max:50',
@@ -93,11 +89,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
 
-    // ==========================================
-    // CALENDARIO Y EVENTOS
-    // ==========================================
-    
-    // Vista del calendario
+    // Calendario
     Route::get('/calendario', function () {
         $eventosDb = Evento::where('user_id', Auth::id())->get();
 
@@ -116,7 +108,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return Inertia::render('Calendar/Index', ['eventos' => $eventosFormateados]);
     })->name('calendario.index');
 
-    // Posponer evento (Rutina separada correctamente)
+    // posponer evento
     Route::put('/calendario/{evento}/posponer', function (Evento $evento) {
         if ($evento->user_id === Auth::id()) {
             $evento->update([
@@ -127,7 +119,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return back();
     })->name('calendario.posponer');
 
-    // Eliminar evento desde el Dashboard (Rutina separada correctamente)
+    // dashboard eliminar evento
     Route::delete('/calendario/{evento}', function (Evento $evento) {
         if ($evento->user_id === Auth::id()) {
             $evento->delete();
@@ -135,14 +127,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return back();
     })->name('calendario.destroy');
 
-    // CRUD eventos clásico
+    // crud eventos
     Route::post('/eventos', [EventoController::class, 'store'])->name('eventos.store');
     Route::put('/eventos/{evento}', [EventoController::class, 'update'])->name('eventos.update');
     Route::delete('/eventos/{evento}', [EventoController::class, 'destroy'])->name('eventos.destroy');
 
-    // ==========================================
-    // PERFIL (BREEZE)
-    // ==========================================
+    // profile
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
