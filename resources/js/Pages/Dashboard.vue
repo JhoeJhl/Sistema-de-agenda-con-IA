@@ -40,7 +40,7 @@
                         <div
                             class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center backdrop-blur-sm">
                             <span class="text-3xl font-bold text-white mb-1">{{ tareasHoy ? tareasHoy.length : 0
-                            }}</span>
+                                }}</span>
                             <span class="text-[10px] text-gray-500 uppercase tracking-widest font-medium">Tareas
                                 Hoy</span>
                         </div>
@@ -109,7 +109,7 @@
                                             class="text-[9px] font-bold uppercase bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">Alta</span>
                                     </div>
                                     <h4 class="text-base font-bold text-white leading-snug mb-3 pr-12">{{ tarea.titulo
-                                    }}</h4>
+                                        }}</h4>
 
                                     <div v-if="tarea.fecha_vencimiento"
                                         class="inline-flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
@@ -174,22 +174,24 @@
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-white/5">
-                                    <button @click="actualizarEstadoTarea(tarea.id, 'no_realizado')"
-                                        class="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                <div
+                                    class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <button @click="abrirConfirmacion(evento.id, 'no_realizado')"
+                                        class="py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
-                                        Omitir
+                                        No realizado
                                     </button>
-                                    <button @click="actualizarEstadoTarea(tarea.id, 'realizado')"
-                                        class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+
+                                    <button @click="abrirConfirmacion(evento.id, 'completado')"
+                                        class="py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                 d="M5 13l4 4L19 7" />
                                         </svg>
-                                        Hecho
+                                        Completado
                                     </button>
                                 </div>
                             </div>
@@ -325,6 +327,48 @@
             </div>
         </div>
     </Transition>
+    <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 scale-95"
+        enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-200"
+        leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
+        <div v-if="modalConfirmacion.isOpen"
+            class="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div
+                class="bg-[#1e293b]/95 border border-white/10 rounded-3xl p-6 shadow-2xl max-w-sm w-full relative text-center">
+
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-4 shadow-lg"
+                    :class="modalConfirmacion.accion === 'completado' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'">
+
+                    <svg v-if="modalConfirmacion.accion === 'completado'" class="w-8 h-8" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <svg v-else class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </div>
+
+                <h2 class="text-xl font-bold text-white mb-2">
+                    {{ modalConfirmacion.accion === 'completado' ? '¡Evento Completado!' : 'Evento No Realizado' }}
+                </h2>
+                <p class="text-gray-400 text-sm mb-6">
+                    ¿Estás seguro de que deseas eliminar este evento de tu agenda permanentemente?
+                </p>
+
+                <div class="flex gap-3">
+                    <button @click="cerrarConfirmacion"
+                        class="flex-1 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-white rounded-xl transition-colors text-sm font-semibold">
+                        Cancelar
+                    </button>
+                    <button @click="procesarEvento"
+                        class="flex-1 py-2.5 rounded-xl transition-all shadow-lg text-sm font-semibold"
+                        :class="modalConfirmacion.accion === 'completado' ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-emerald-500/30' : 'bg-red-500 hover:bg-red-600 text-white shadow-red-500/30'">
+                        Sí, eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </Transition>
 </template>
 
 <script setup>
@@ -332,6 +376,7 @@ import { ref } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import Navbar from '@/Components/Navbar.vue';
 import ProductivityChart from '@/Components/ProductivityChart.vue';
+
 // Datos de laravel
 const props = defineProps({
     userName: String,
@@ -343,7 +388,6 @@ const props = defineProps({
     estadisticasSemana: Object,
 });
 
-// Control del Modal de Tareas
 const isNewTaskModalOpen = ref(false);
 
 const formTarea = useForm({
@@ -364,24 +408,39 @@ const guardarNuevaTarea = () => {
     });
 };
 
-// Actualizar el estado de una TAREA
 const actualizarEstadoTarea = (tareaId, nuevoEstado) => {
     router.put(`/tareas/${tareaId}`, { estado: nuevoEstado }, {
         preserveScroll: true
     });
 };
 
-// ==========================================
-// NUEVO: ELIMINAR EVENTOS (Calendario)
-// ==========================================
-const eliminarEvento = (eventoId) => {
-    // Cuando el usuario haga clic en "Completado" o "No realizado" en un evento,
-    // usamos Inertia para llamar a la ruta de eliminación (DELETE).
-    if (confirm('¿Estás seguro de quitar este evento de tu agenda?')) {
-        router.delete(`/calendario/${eventoId}`, {
-            preserveScroll: true
-        });
-    }
+const modalConfirmacion = ref({
+    isOpen: false,
+    eventoId: null,
+    accion: ''
+});
+
+const abrirConfirmacion = (id, accion) => {
+    modalConfirmacion.value.eventoId = id;
+    modalConfirmacion.value.accion = accion;
+    modalConfirmacion.value.isOpen = true;
+};
+
+const cerrarConfirmacion = () => {
+    modalConfirmacion.value.isOpen = false;
+    setTimeout(() => {
+        modalConfirmacion.value.eventoId = null;
+        modalConfirmacion.value.accion = '';
+    }, 300);
+};
+
+const procesarEvento = () => {
+    router.delete(`/calendario/${modalConfirmacion.value.eventoId}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+            cerrarConfirmacion();
+        }
+    });
 };
 
 // Utilidades
