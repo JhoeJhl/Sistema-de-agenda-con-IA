@@ -79,28 +79,42 @@
                                     <div class="w-2 h-2 bg-red-500 rounded-full animate-ping"></div>
                                 </div>
 
-                                <div class="mb-5">
+                                <div class="mb-4">
                                     <div class="flex items-center gap-2 mb-2">
                                         <span class="text-[10px] font-bold uppercase tracking-widest text-indigo-400">{{ tarea.categoria }}</span>
-                                        <span v-if="tarea.prioridad === 'Alta'" class="text-[9px] font-bold uppercase bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30">Alta</span>
+                                        <span :class="clasePrioridad(tarea.prioridad)">{{ tarea.prioridad }}</span>
                                     </div>
                                     <h4 class="text-base font-bold text-white leading-snug mb-3 pr-12">{{ tarea.titulo }}</h4>
 
-                                    <div v-if="tarea.fecha_vencimiento" class="inline-flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Vence: {{ formatearHora(tarea.fecha_vencimiento) }}
+                                    <div v-if="tarea.fecha_vencimiento" class="flex flex-col gap-1">
+                                        <div class="inline-flex items-center gap-1.5 bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            Límite: {{ formatearFechaLarga(tarea.fecha_vencimiento) }} a las {{ formatearHora(tarea.fecha_vencimiento) }}
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-white/5">
-                                    <button @click="actualizarEstadoTarea(tarea.id, 'no_realizado')" class="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                        Omitir
-                                    </button>
-                                    <button @click="actualizarEstadoTarea(tarea.id, 'realizado')" class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        Hecho
-                                    </button>
+                                <div class="mt-auto">
+                                    <div class="flex justify-between items-center bg-black/40 px-3 py-2 rounded-xl mb-3 border border-white/5">
+                                        <div class="flex items-center gap-1 text-[10px] text-gray-400">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            Creada el {{ formatearFechaCorta(tarea.created_at) }}
+                                        </div>
+                                        <div v-if="tarea.fecha_vencimiento" class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold" :class="calcularTiempoRestante(tarea.fecha_vencimiento).color">
+                                            {{ calcularTiempoRestante(tarea.fecha_vencimiento).texto }}
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 border-t border-white/5 pt-3">
+                                        <button @click="actualizarEstadoTarea(tarea.id, 'no_realizado')" class="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            Omitir
+                                        </button>
+                                        <button @click="actualizarEstadoTarea(tarea.id, 'realizado')" class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            Hecho
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -117,35 +131,41 @@
                                 Aún no tienes tareas asignadas para mañana.
                             </div>
 
-                            <div v-for="tarea in tareasManana" :key="tarea.id" class="relative bg-black/30 border border-white/10 hover:border-purple-500/50 rounded-2xl p-5 transition-all flex flex-col group shadow-lg">
-                                
-                                <div class="flex justify-between items-start mb-3">
-                                    <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">{{ tarea.categoria }}</span>
-                                    <span :class="clasePrioridad(tarea.prioridad)">{{ tarea.prioridad }}</span>
-                                </div>
-
-                                <h4 class="text-base font-bold text-white leading-snug mb-4">{{ tarea.titulo }}</h4>
-
-                                <div class="flex flex-col gap-2 mb-6 mt-auto">
-                                    <div class="flex items-center gap-2 text-xs text-gray-400">
-                                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                        <span>{{ formatearFechaLarga(tarea.fecha_vencimiento) }} a las {{ formatearHora(tarea.fecha_vencimiento) }}</span>
+                            <div v-for="tarea in tareasManana" :key="tarea.id" class="relative bg-black/30 border border-white/10 hover:border-purple-500/50 hover:bg-white/5 rounded-2xl p-5 transition-all flex flex-col group shadow-lg">
+                                <div class="mb-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">{{ tarea.categoria }}</span>
+                                        <span :class="clasePrioridad(tarea.prioridad)">{{ tarea.prioridad }}</span>
                                     </div>
-                                    <div v-if="tarea.fecha_vencimiento" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-fit border" :class="calcularTiempoRestante(tarea.fecha_vencimiento).color">
+                                    <h4 class="text-base font-bold text-white leading-snug mb-3">{{ tarea.titulo }}</h4>
+
+                                    <div v-if="tarea.fecha_vencimiento" class="inline-flex items-center gap-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        <span>{{ calcularTiempoRestante(tarea.fecha_vencimiento).texto }}</span>
+                                        Límite: {{ formatearFechaLarga(tarea.fecha_vencimiento) }} a las {{ formatearHora(tarea.fecha_vencimiento) }}
                                     </div>
                                 </div>
 
-                                <div class="grid grid-cols-2 gap-2 mt-auto pt-4 border-t border-white/5">
-                                    <button @click="actualizarEstadoTarea(tarea.id, 'no_realizado')" class="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                                        Omitir
-                                    </button>
-                                    <button @click="actualizarEstadoTarea(tarea.id, 'realizado')" class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-                                        Hecho
-                                    </button>
+                                <div class="mt-auto">
+                                    <div class="flex justify-between items-center bg-black/40 px-3 py-2 rounded-xl mb-3 border border-white/5">
+                                        <div class="flex items-center gap-1 text-[10px] text-gray-400">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            Creada el {{ formatearFechaCorta(tarea.created_at) }}
+                                        </div>
+                                        <div v-if="tarea.fecha_vencimiento" class="flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold" :class="calcularTiempoRestante(tarea.fecha_vencimiento).color">
+                                            {{ calcularTiempoRestante(tarea.fecha_vencimiento).texto }}
+                                        </div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 border-t border-white/5 pt-3">
+                                        <button @click="actualizarEstadoTarea(tarea.id, 'no_realizado')" class="w-full py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 hover:border-red-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                                            Omitir
+                                        </button>
+                                        <button @click="actualizarEstadoTarea(tarea.id, 'realizado')" class="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 hover:border-emerald-500/40 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                                            Hecho
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -170,7 +190,6 @@
                             <div class="bg-black/30 border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all overflow-hidden relative">
                                 
                                 <div class="absolute top-0 right-0 w-24 h-24 opacity-10 blur-2xl rounded-full" :style="{ backgroundColor: evento.color || '#6366f1' }"></div>
-
                                 <div class="absolute left-0 top-0 bottom-0 w-1.5" :style="{ backgroundColor: evento.color || '#6366f1' }"></div>
                                 
                                 <div class="pl-2 relative z-10">
@@ -189,17 +208,27 @@
 
                                     <h4 class="text-base font-bold text-white mb-2 pr-4">{{ evento.titulo }}</h4>
 
-                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg mb-3 border border-indigo-500/20">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        {{ formatearHora(evento.fecha_inicio) }} - {{ formatearHora(evento.fecha_fin) }}
+                                    <div class="flex flex-col gap-1.5 mb-3">
+                                        <div class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg border border-indigo-500/20 w-fit">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            {{ formatearFechaLarga(evento.fecha_inicio) }}
+                                        </div>
+                                        <div class="text-xs text-gray-400 pl-1 flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            De {{ formatearHora(evento.fecha_inicio) }} a {{ formatearHora(evento.fecha_fin) }}
+                                        </div>
                                     </div>
 
-                                    <div v-if="evento.descripcion" class="flex gap-2 text-xs text-gray-400 bg-black/40 p-3 rounded-xl border border-white/5 mb-2 mt-1">
+                                    <div v-if="evento.descripcion" class="flex gap-2 text-xs text-gray-400 bg-black/40 p-3 rounded-xl border border-white/5 mb-3 mt-1">
                                         <svg class="w-4 h-4 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
                                         <p class="line-clamp-2 leading-relaxed">{{ evento.descripcion }}</p>
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                    <div class="flex justify-between items-center mt-2 text-[10px] text-gray-500 border-t border-white/5 pt-3">
+                                        <span>Añadido a la agenda: {{ formatearFechaCorta(evento.created_at) }}</span>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
                                         <button @click="abrirConfirmacion(evento.id, 'no_realizado')" class="py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                             No realizado
@@ -268,20 +297,14 @@
     <Transition enter-active-class="transition ease-out duration-300" enter-from-class="opacity-0 scale-95" enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-200" leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-95">
         <div v-if="modalConfirmacion.isOpen" class="fixed inset-0 z-[110] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div class="bg-[#1e293b]/95 border border-white/10 rounded-3xl p-6 shadow-2xl max-w-sm w-full relative text-center">
-
                 <button @click="cerrarConfirmacion" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors p-1 bg-white/5 rounded-full hover:bg-white/10">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
 
                 <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full mb-4 shadow-lg mt-2"
                      :class="modalConfirmacion.accion === 'completado' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'">
-                    
-                    <svg v-if="modalConfirmacion.accion === 'completado'" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <svg v-else class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <svg v-if="modalConfirmacion.accion === 'completado'" class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                    <svg v-else class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </div>
 
                 <h2 class="text-xl font-bold text-white mb-2">
@@ -299,7 +322,7 @@
                     
                     <button @click="posponerEvento" class="w-full py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 rounded-xl transition-colors text-sm font-semibold flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                        Omitir (Posponer para mañana)
+                        Omitir (Posponer siguiente dia)
                     </button>
                 </div>
             </div>
@@ -332,7 +355,7 @@ const formTarea = useForm({
     fecha_vencimiento: '',
 });
 
-// TAREAS
+// tareas
 const guardarNuevaTarea = () => {
     formTarea.post('/tareas', {
         preserveScroll: true,
@@ -346,6 +369,8 @@ const guardarNuevaTarea = () => {
 const actualizarEstadoTarea = (tareaId, nuevoEstado) => {
     router.put(`/tareas/${tareaId}`, { estado: nuevoEstado }, { preserveScroll: true });
 };
+
+// eventos modal
 const modalConfirmacion = ref({
     isOpen: false,
     eventoId: null,
@@ -377,13 +402,13 @@ const posponerEvento = () => {
     });
 };
 
-// calculo evento si paso o ya paso o pasara
+//eventos
 const estadoEvento = (evento) => {
     if (!evento.fecha_inicio) return { texto: 'Próximo', color: 'text-gray-400 bg-gray-500/20 border-gray-500/30' };
     
     const ahora = new Date();
     const inicio = new Date(evento.fecha_inicio);
-    const fin = evento.fecha_fin ? new Date(evento.fecha_fin) : new Date(inicio.getTime() + 60*60*1000); // asume 1h si no hay fin
+    const fin = evento.fecha_fin ? new Date(evento.fecha_fin) : new Date(inicio.getTime() + 60*60*1000); 
     
     if (ahora >= inicio && ahora <= fin) {
         return { texto: 'En curso', color: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30', ping: true };
@@ -394,7 +419,6 @@ const estadoEvento = (evento) => {
     }
 };
 
-// calculo duracion evento
 const duracionEvento = (evento) => {
     if (!evento.fecha_inicio || !evento.fecha_fin) return '1h';
     
@@ -415,6 +439,14 @@ const clasePrioridad = (prioridad) => {
     return 'text-[9px] font-bold uppercase bg-gray-500/20 text-gray-400 px-1.5 py-0.5 rounded border border-gray-500/30';
 };
 
+// NUEVO: Fecha corta (Ej. "24 Mar")
+const formatearFechaCorta = (fechaString) => {
+    if (!fechaString) return 'Desconocida';
+    const opciones = { day: 'numeric', month: 'short' };
+    return new Date(fechaString).toLocaleDateString('es-ES', opciones);
+};
+
+// FECHA LARGA (Ej. "jue, 24 oct")
 const formatearFechaLarga = (fechaString) => {
     if (!fechaString) return '';
     const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
