@@ -1,5 +1,5 @@
 <template>
-    <Head title="Tu Tiempo, Optimizado. El Futuro es Ahora" />
+    <Head title="AgendaIA" />
 
     <div class="min-h-screen bg-gray-900 overflow-x-hidden relative font-sans text-white">
         
@@ -17,14 +17,6 @@
 
             <!-- Hero Section mejorado -->
             <main class="py-16 text-center flex flex-col items-center gap-6">
-                <div class="inline-flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-4 py-2 mb-4 backdrop-blur-sm">
-                    <span class="relative flex h-2 w-2">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                    </span>
-                    <span class="text-xs text-indigo-300 font-medium">IA EN TIEMPO REAL</span>
-                </div>
-
                 <h1 class="text-5xl md:text-7xl font-extrabold tracking-tighter max-w-4xl leading-[1.1] bg-clip-text text-transparent bg-gradient-to-b from-white via-indigo-200 to-gray-400">
                     Tu Tiempo, Optimizado.<br> El Futuro de la Organización es Ahora.
                 </h1>

@@ -40,16 +40,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             $horasBloqueadas += $inicio->diffInMinutes($fin) / 60;
         }
         $tareasHoy = Tarea::where('user_id', $userId)
-            ->whereDate('fecha_vencimiento', \Carbon\Carbon::today())
             ->where('estado', 'pendiente') // Solo mostramos las que faltan por hacer
             ->orderBy('fecha_vencimiento', 'asc')
             ->get();
-
-        $tareasManana = Tarea::where('user_id', $userId)
-            ->whereDate('fecha_vencimiento', \Carbon\Carbon::tomorrow())
-            ->where('estado', 'pendiente')
-            ->orderBy('fecha_vencimiento', 'asc')
-            ->get();
+        $estadisticasSemana = [
+            'dias' => ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+            'tareas_completadas' => [2, 4, 3, 7, 5, 2, 0],
+            'horas_invertidas' => [1.5, 3, 2, 5, 4, 1, 0]
+        ];
+        $tareasManana = [];
         return Inertia::render('Dashboard', [
             'userName' => $nombreAMostrar,
             'eventosHoyCount' => $eventosHoy->count(),
@@ -57,8 +56,33 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'proximosEventos' => $proximosEventos,
             'tareasHoy' => $tareasHoy,
             'tareasManana' => $tareasManana,
+            'estadisticasSemana' => $estadisticasSemana,
         ]);
     })->name('dashboard');
+
+    // Tareas
+    Route::post('/tareas', function ($request) {
+        // 1. Validamos los datos que llegan de Vue
+        $validated = $request->validate([
+            'titulo' => 'required|string|max:255',
+            'categoria' => 'nullable|string|max:50',
+            'prioridad' => 'required|in:Baja,Media,Alta',
+            'fecha_vencimiento' => 'required|date',
+        ]);
+
+        // 2. Creamos la tarea conectada al usuario actual
+        Tarea::create([
+            'user_id' => Auth::id(),
+            'titulo' => $validated['titulo'],
+            'categoria' => $validated['categoria'] ?? 'General',
+            'prioridad' => $validated['prioridad'],
+            'fecha_vencimiento' => $validated['fecha_vencimiento'],
+            'estado' => 'pendiente',
+        ]);
+
+        // 3. Regresamos (Inertia actualizará el Dashboard mágicamente sin recargar)
+        return back();
+    })->middleware(['auth'])->name('tareas.store');
 
     // Calendario
     Route::get('/calendario', function () {
@@ -87,6 +111,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Tareas 
 
     Route::put('/tareas/{tarea}', [TareaController::class, 'update'])->name('tareas.update');
+
     // Profile breeze
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
