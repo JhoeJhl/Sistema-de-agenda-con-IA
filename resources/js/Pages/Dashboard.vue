@@ -70,7 +70,6 @@
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                             <div v-if="!tareasHoy || tareasHoy.length === 0" class="col-span-full py-8 text-center flex flex-col items-center justify-center bg-black/10 rounded-2xl border border-white/5">
-                                <span class="text-3xl mb-2">🎉</span>
                                 <p class="text-gray-400 text-sm">No tienes tareas pendientes para hoy. ¡Todo al día!</p>
                             </div>
 
@@ -118,16 +117,23 @@
                                 Aún no tienes tareas asignadas para mañana.
                             </div>
 
-                            <div v-for="tarea in tareasManana" :key="tarea.id" class="relative bg-black/30 border border-white/10 hover:border-purple-500/50 hover:bg-white/5 rounded-2xl p-5 transition-all flex flex-col justify-between group shadow-lg">
-                                <div class="mb-5">
-                                    <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">{{ tarea.categoria }}</span>
-                                    </div>
-                                    <h4 class="text-base font-bold text-white leading-snug mb-3">{{ tarea.titulo }}</h4>
+                            <div v-for="tarea in tareasManana" :key="tarea.id" class="relative bg-black/30 border border-white/10 hover:border-purple-500/50 rounded-2xl p-5 transition-all flex flex-col group shadow-lg">
+                                
+                                <div class="flex justify-between items-start mb-3">
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-purple-400">{{ tarea.categoria }}</span>
+                                    <span :class="clasePrioridad(tarea.prioridad)">{{ tarea.prioridad }}</span>
+                                </div>
 
-                                    <div v-if="tarea.fecha_vencimiento" class="inline-flex items-center gap-1.5 bg-purple-500/20 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-lg text-xs font-semibold">
+                                <h4 class="text-base font-bold text-white leading-snug mb-4">{{ tarea.titulo }}</h4>
+
+                                <div class="flex flex-col gap-2 mb-6 mt-auto">
+                                    <div class="flex items-center gap-2 text-xs text-gray-400">
+                                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                        <span>{{ formatearFechaLarga(tarea.fecha_vencimiento) }} a las {{ formatearHora(tarea.fecha_vencimiento) }}</span>
+                                    </div>
+                                    <div v-if="tarea.fecha_vencimiento" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold w-fit border" :class="calcularTiempoRestante(tarea.fecha_vencimiento).color">
                                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                        Vence: {{ formatearHora(tarea.fecha_vencimiento) }}
+                                        <span>{{ calcularTiempoRestante(tarea.fecha_vencimiento).texto }}</span>
                                     </div>
                                 </div>
 
@@ -149,8 +155,7 @@
                 <div class="bg-white/5 border border-white/10 rounded-3xl p-6 lg:col-span-1 h-fit sticky top-6 shadow-xl">
                     <div class="flex justify-between items-center mb-6 border-b border-white/5 pb-4">
                         <h3 class="text-xl font-bold text-white flex items-center gap-2">
-                            <span class="text-teal-400">📅</span>
-                            Agenda (Eventos)
+                            Eventos Calendario
                         </h3>
                         <Link href="/calendario" class="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 px-3 py-1.5 rounded-lg transition-colors">Ver Calendario</Link>
                     </div>
@@ -162,24 +167,44 @@
                     <div class="space-y-4">
                         <div v-for="evento in proximosEventos" :key="evento.id" class="relative group">
                             
-                            <div class="bg-black/30 border border-white/10 hover:border-white/20 rounded-2xl p-4 transition-all">
-                                <div class="absolute left-0 top-4 bottom-4 w-1.5 rounded-r-md" :style="{ backgroundColor: evento.color || '#6366f1' }"></div>
+                            <div class="bg-black/30 border border-white/10 hover:border-white/20 rounded-2xl p-5 transition-all overflow-hidden relative">
                                 
-                                <div class="pl-2">
-                                    <div class="flex flex-col gap-1 mb-3">
-                                        <span class="text-xs font-bold text-indigo-300 bg-indigo-500/10 w-fit px-2 py-1 rounded-md mb-1">
-                                            {{ formatearHora(evento.fecha_inicio) }} - {{ formatearHora(evento.fecha_fin) }}
+                                <div class="absolute top-0 right-0 w-24 h-24 opacity-10 blur-2xl rounded-full" :style="{ backgroundColor: evento.color || '#6366f1' }"></div>
+
+                                <div class="absolute left-0 top-0 bottom-0 w-1.5" :style="{ backgroundColor: evento.color || '#6366f1' }"></div>
+                                
+                                <div class="pl-2 relative z-10">
+                                    
+                                    <div class="flex justify-between items-start mb-3">
+                                        <div class="flex items-center gap-2">
+                                            <span :class="['text-[10px] font-bold uppercase px-2 py-0.5 rounded border flex items-center gap-1.5', estadoEvento(evento).color]">
+                                                <span v-if="estadoEvento(evento).ping" class="w-1.5 h-1.5 rounded-full bg-current animate-ping"></span>
+                                                {{ estadoEvento(evento).texto }}
+                                            </span>
+                                        </div>
+                                        <span class="text-[10px] font-bold text-gray-400 bg-white/5 px-2 py-0.5 rounded-md border border-white/10 flex items-center gap-1">
+                                            ⏱️ {{ duracionEvento(evento) }}
                                         </span>
-                                        <span class="text-sm font-bold text-white">{{ evento.titulo }}</span>
                                     </div>
 
-                                    <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                        <button @click="abrirConfirmacion(evento.id, 'no_realizado')" class="py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1">
+                                    <h4 class="text-base font-bold text-white mb-2 pr-4">{{ evento.titulo }}</h4>
+
+                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-300 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg mb-3 border border-indigo-500/20">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                        {{ formatearHora(evento.fecha_inicio) }} - {{ formatearHora(evento.fecha_fin) }}
+                                    </div>
+
+                                    <div v-if="evento.descripcion" class="flex gap-2 text-xs text-gray-400 bg-black/40 p-3 rounded-xl border border-white/5 mb-2 mt-1">
+                                        <svg class="w-4 h-4 flex-shrink-0 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                                        <p class="line-clamp-2 leading-relaxed">{{ evento.descripcion }}</p>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5 opacity-80 group-hover:opacity-100 transition-opacity">
+                                        <button @click="abrirConfirmacion(evento.id, 'no_realizado')" class="py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                                             No realizado
                                         </button>
-
-                                        <button @click="abrirConfirmacion(evento.id, 'completado')" class="py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1">
+                                        <button @click="abrirConfirmacion(evento.id, 'completado')" class="py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5">
                                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                                             Completado
                                         </button>
@@ -222,7 +247,7 @@
                             <select v-model="formTarea.prioridad" class="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-2.5 text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all appearance-none [color-scheme:dark]">
                                 <option value="Baja">Baja</option>
                                 <option value="Media">Media</option>
-                                <option value="Alta">Alta 🔥</option>
+                                <option value="Alta">Alta</option>
                             </select>
                         </div>
                     </div>
@@ -286,7 +311,7 @@
 import { ref } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import Navbar from '@/Components/Navbar.vue';
-import ProductivityChart from '@/Components/ProductivityChart.vue'; // Opcional, si lo tienes creado
+import ProductivityChart from '@/Components/ProductivityChart.vue';
 
 const props = defineProps({
     userName: String,
@@ -307,9 +332,7 @@ const formTarea = useForm({
     fecha_vencimiento: '',
 });
 
-// ==========================================
-// TAREAS (Crear y Cambiar estado)
-// ==========================================
+// TAREAS
 const guardarNuevaTarea = () => {
     formTarea.post('/tareas', {
         preserveScroll: true,
@@ -321,15 +344,8 @@ const guardarNuevaTarea = () => {
 };
 
 const actualizarEstadoTarea = (tareaId, nuevoEstado) => {
-    // Al usar PUT, Laravel actualizará la tarea a "realizado" y desaparecerá de la vista
-    router.put(`/tareas/${tareaId}`, { estado: nuevoEstado }, {
-        preserveScroll: true
-    });
+    router.put(`/tareas/${tareaId}`, { estado: nuevoEstado }, { preserveScroll: true });
 };
-
-// ==========================================
-// EVENTOS (Modal Reactivo)
-// ==========================================
 const modalConfirmacion = ref({
     isOpen: false,
     eventoId: null,
@@ -337,12 +353,7 @@ const modalConfirmacion = ref({
 });
 
 const abrirConfirmacion = (id, accion) => {
-    // Forzamos la reactividad rescribiendo el objeto
-    modalConfirmacion.value = {
-        isOpen: true,
-        eventoId: id,
-        accion: accion
-    };
+    modalConfirmacion.value = { isOpen: true, eventoId: id, accion: accion };
 };
 
 const cerrarConfirmacion = () => {
@@ -352,30 +363,84 @@ const cerrarConfirmacion = () => {
     }, 300);
 };
 
-// Elimina el evento permanentemente
 const procesarEvento = () => {
     router.delete(`/calendario/${modalConfirmacion.value.eventoId}`, {
         preserveScroll: true,
-        onSuccess: () => {
-            cerrarConfirmacion();
-        }
+        onSuccess: () => cerrarConfirmacion()
     });
 };
 
-// Posponer evento para mañana
 const posponerEvento = () => {
-    // Mandamos una petición PUT especial para posponer
     router.put(`/calendario/${modalConfirmacion.value.eventoId}/posponer`, {}, {
         preserveScroll: true,
-        onSuccess: () => {
-            cerrarConfirmacion();
-        }
+        onSuccess: () => cerrarConfirmacion()
     });
 };
 
-// ==========================================
-// UTILIDADES (Fechas)
-// ==========================================
+// calculo evento si paso o ya paso o pasara
+const estadoEvento = (evento) => {
+    if (!evento.fecha_inicio) return { texto: 'Próximo', color: 'text-gray-400 bg-gray-500/20 border-gray-500/30' };
+    
+    const ahora = new Date();
+    const inicio = new Date(evento.fecha_inicio);
+    const fin = evento.fecha_fin ? new Date(evento.fecha_fin) : new Date(inicio.getTime() + 60*60*1000); // asume 1h si no hay fin
+    
+    if (ahora >= inicio && ahora <= fin) {
+        return { texto: 'En curso', color: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30', ping: true };
+    } else if (ahora > fin) {
+        return { texto: 'Finalizado', color: 'text-gray-400 bg-gray-500/20 border-gray-500/30', ping: false };
+    } else {
+        return { texto: 'Próximamente', color: 'text-indigo-400 bg-indigo-500/20 border-indigo-500/30', ping: false };
+    }
+};
+
+// calculo duracion evento
+const duracionEvento = (evento) => {
+    if (!evento.fecha_inicio || !evento.fecha_fin) return '1h';
+    
+    const diffMs = new Date(evento.fecha_fin) - new Date(evento.fecha_inicio);
+    const minutosTotales = Math.floor(diffMs / 60000);
+    
+    if (minutosTotales >= 60) {
+        const horas = Math.floor(minutosTotales / 60);
+        const minutosRestantes = minutosTotales % 60;
+        return minutosRestantes > 0 ? `${horas}h ${minutosRestantes}m` : `${horas}h`;
+    }
+    return `${minutosTotales}m`;
+};
+
+const clasePrioridad = (prioridad) => {
+    if (prioridad === 'Alta') return 'text-[9px] font-bold uppercase bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded border border-red-500/30';
+    if (prioridad === 'Media') return 'text-[9px] font-bold uppercase bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/30';
+    return 'text-[9px] font-bold uppercase bg-gray-500/20 text-gray-400 px-1.5 py-0.5 rounded border border-gray-500/30';
+};
+
+const formatearFechaLarga = (fechaString) => {
+    if (!fechaString) return '';
+    const opciones = { weekday: 'short', day: 'numeric', month: 'short' };
+    return new Date(fechaString).toLocaleDateString('es-ES', opciones);
+};
+
+const calcularTiempoRestante = (fechaString) => {
+    if (!fechaString) return { texto: 'Sin fecha', color: 'text-gray-400 bg-gray-500/10 border-gray-500/20' };
+
+    const ahora = new Date();
+    const vencimiento = new Date(fechaString);
+    const diffMs = vencimiento - ahora;
+    const diffHoras = diffMs / (1000 * 60 * 60);
+    const diffDias = Math.floor(diffHoras / 24);
+
+    if (diffHoras < 0) {
+        return { texto: 'Vencida', color: 'text-red-400 bg-red-500/10 border-red-500/20 animate-pulse' };
+    } else if (diffHoras <= 2) {
+        return { texto: 'Vence muy pronto', color: 'text-red-400 bg-red-500/10 border-red-500/20' };
+    } else if (diffHoras <= 24) {
+        return { texto: `En ${Math.floor(diffHoras)} horas`, color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
+    } else {
+        return { texto: `Faltan ${diffDias} días`, color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' };
+    }
+};
+
 const esUrgente = (fechaString) => {
     if (!fechaString) return false;
     const ahora = new Date();
